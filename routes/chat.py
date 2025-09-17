@@ -90,7 +90,7 @@ def send_message():
     
     # 2. Llamar a la API de OpenRouter para la respuesta del bot
     try:
-        OPENROUTER_API_KEY = "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"
+        OPENROUTER_API_KEY = "12345"
         if not OPENROUTER_API_KEY:
             raise ValueError("La clave de API de OpenRouter no está configurada.")
 
@@ -203,4 +203,5 @@ def switch_chat(session_id):
             'id': chat_session.id,
             'title': chat_session.title
         }
+
     }), 200

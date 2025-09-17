@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesor Virtual</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f7f9fc;
+            --border-color: #e9ecef;
+            --sidebar-bg: #ffffff;
+            --bot-message-bg: #f1f3f5;
+            --user-message-bg: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-item:hover {
+            background-color: var(--light-bg);
+        }
+
+        .chat-item.active {
+            background-color: #e9f5ff;
+            border-left: 3px solid var(--primary-color);
+            padding-left: 13px;
+        }
+        .delete-btn {
+            color: var(--secondary-color);
+            display: none;
+            transition: color 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            color: #dc3545;
+        }
+        .chat-item:hover .delete-btn {
+            display: inline-block;
+        }
+        
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            padding: 1rem 1.5rem !important;
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .message {
+            max-width: 75%;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+
+        .user-message .message-content {
+            background: var(--user-message-bg);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .bot-message .message-content {
+            background-color: var(--bot-message-bg);
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .message small {
+            font-size: 0.75rem;
+            color: var(--secondary-color);
+            margin-top: 6px;
+            padding: 0 5px;
+        }
+        
+        .input-container {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--sidebar-bg);
+        }
+
+        .input-container .form-control {
+            border-radius: 25px;
+            padding: 12px 20px;
+            border-color: var(--border-color);
+        }
+
+        .input-container .form-control:focus {
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            border-color: var(--primary-color);
+        }
+
+        .input-container .btn {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-3 border-bottom">
+                <h4 class="fw-bold mb-3">Asesor Virtual</h4>
+                <h6 class="text-muted">Conversaciones</h6>
+                <button class="btn btn-primary w-100 mt-2" id="newChatBtn">
+                    <i class="fas fa-plus me-2"></i> Nueva Conversación
+                </button>
+            </div>
+            <div class="chat-list" id="chatList">
+                {% for session in chat_sessions %}
+                <div class="chat-item p-3 border-bottom {% if current_session.id == session.id %}active{% endif %}"
+                     data-session-id="{{ session.id }}">
+                    <div>
+                        <h6 class="mb-1 text-truncate">{{ session.title }}</h6>
+                        <small class="text-muted">{{ session.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                    <button class="btn btn-sm delete-btn" data-session-id="{{ session.id }}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="p-3 border-top mt-auto">
+                <a href="#" id="logoutBtn" class="btn btn-outline-danger w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <div class="header p-3 border-bottom bg-white">
+                <h5 id="currentChatTitle">{{ current_session.title }}</h5>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Los mensajes se cargarán aquí por JavaScript -->
+                <div class="text-center text-muted mt-5">
+                    <i class="fas fa-comments fa-3x mb-3"></i>
+                    <p>Comienza una nueva conversación</p>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" placeholder="Escribe tu mensaje...">
+                    <button class="btn btn-primary" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            let currentSessionId = {{ current_session.id }};
+            let currentSessionTitle = "{{ current_session.title }}";
+
+            // Cargar mensajes de la sesión actual
+            function loadMessages(sessionId) {
+                $.ajax({
+                    url: "/api/chat/load/" + sessionId,
+                    type: "GET",
+                    success: function(response) {
+                        displayMessages(response.messages);
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading messages:', xhr.responseJSON);
+                    }
+                });
+            }
+
+            // Mostrar mensajes en el chat
+            function displayMessages(messages) {
+                const container = $('#messagesContainer');
+                container.empty();
+
+                if (messages.length === 0) {
+                    container.html(`
+                        <div class="text-center text-muted mt-5">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>Comienza una nueva conversación</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                messages.forEach(msg => {
+                    const messageClass = msg.is_user ? 'user-message' : 'bot-message';
+                    const messageHtml = `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${msg.message}</div>
+                            <small>${new Date(msg.created_at).toLocaleTimeString()}</small>
+                        </div>
+                    `;
+                    container.append(messageHtml);
+                });
+                container.scrollTop(container[0].scrollHeight);
+            }
+
+            // Enviar mensaje
+            $('#sendBtn').click(sendMessage);
+            $('#messageInput').keypress(function(e) {
+                if (e.which === 13) {
+                    sendMessage();
+                }
+            });
+
+            function sendMessage() {
+                const message = $('#messageInput').val().trim();
+                if (!message) return;
+
+                $.ajax({
+                    url: "/api/chat/send",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        message: message,
+                        session_id: currentSessionId
+                    }),
+                    success: function(response) {
+                        $('#messageInput').val('');
+                        loadMessages(currentSessionId);
+                        if (response.session_title) {
+                            currentSessionTitle = response.session_title;
+                            $('#currentChatTitle').text(currentSessionTitle);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error sending message:', xhr.responseJSON);
+                    }
+                });
+            }
+
+            // Cambiar de sesión
+            $('.chat-item').click(function() {
+                const sessionId = $(this).data('session-id');
+                if (sessionId !== currentSessionId) {
+                    $.ajax({
+                        url: "/api/chat/switch/" + sessionId,
+                        type: "POST",
+                        success: function(response) {
+                            currentSessionId = sessionId;
+                            currentSessionTitle = response.session.title;
+                            $('#currentChatTitle').text(currentSessionTitle);
+                            loadMessages(sessionId);
+                            $('.chat-item').removeClass('active');
+                            $(`.chat-item[data-session-id="${sessionId}"]`).addClass('active');
+                        },
+                        error: function(xhr) {
+                            console.error('Error switching session:', xhr.responseJSON);
+                        }
+                    });
+                }
+            });
+
+            // Nueva conversación
+            $('#newChatBtn').click(function() {
+                $.ajax({
+                    url: "/api/chat/send",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        message: "Hola",
+                        session_id: null
+                    }),
+                    success: function(response) {
+                        window.location.reload();
+                    },
+                    error: function(xhr) {
+                        console.error('Error creating new chat:', xhr.responseJSON);
+                    }
+                });
+            });
+
+            // Cargar mensajes iniciales
+            loadMessages(currentSessionId);
+
+            // Eliminar conversación
+            $('#chatList').on('click', '.delete-btn', function(e) {
+                e.stopPropagation(); // Evitar que se dispare el evento de cambiar de chat
+                
+                const btn = $(this);
+                const sessionId = btn.data('session-id');
+                
+                if (confirm('¿Estás seguro de que quieres eliminar esta conversación?')) {
+                    $.ajax({
+                        url: '/api/chat/delete/' + sessionId,
+                        type: 'DELETE',
+                        success: function(response) {
+                            // Eliminar el elemento de la lista
+                            btn.closest('.chat-item').remove();
+                            
+                            // Si se elimina la sesión actual, recargar para ir a una nueva
+                            if (sessionId === currentSessionId) {
+                                window.location.reload();
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error deleting session:', xhr.responseJSON);
+                            alert('No se pudo eliminar la conversación.');
+                        }
+                    });
+                }
+            });
+
+            // Cerrar Sesión
+            $('#logoutBtn').click(function(e) {
+                e.preventDefault();
+                $.post("/logout", function() {
+                    window.location.href = "/";
+                });
+            });
+        });
+    </script>
+</body>
+</html>

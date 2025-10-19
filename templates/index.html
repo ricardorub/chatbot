@@ -535,6 +535,50 @@
                             <label for="registerEmail" class="form-label">Correo electrónico</label>
                             <input type="email" class="form-control" id="registerEmail" required>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="registerUniversity" class="form-label">Universidad</label>
+                                <select class="form-select" id="registerUniversity" required>
+                                    <option selected disabled value="">Elegir...</option>
+                                    <option>UNMSM(San Marcos)</option>
+                                    <option>UNI</option>
+                                    <option>CATOLICA</option>
+                                    <option>CALLAO</option>
+                                    <option>UTP</option>
+                                    <option>PACIFICO</option>
+                                    <option>UPC</option>
+                                    <option>URP(Ricardo Palma)</option>
+                                    <option>UNAC</option>
+                                    <option>UCV(Cesar Vallejo)</option>
+                                    <option>Otros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="registerGender" class="form-label">Género</label>
+                                <select class="form-select" id="registerGender" required>
+                                    <option selected disabled value="">Elegir...</option>
+                                    <option>Masculino</option>
+                                    <option>Femenino</option>
+                                    <option>Otros</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="registerAge" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="registerAge" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerAcademicLevel" class="form-label">Nivel Académico</label>
+                            <select class="form-select" id="registerAcademicLevel" required>
+                                <option selected disabled value="">Elegir...</option>
+                                <option>Bachiller</option>
+                                <option>Título Profesional</option>
+                                <option>Maestría</option>
+                                <option>Doctorado</option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label for="registerPassword" class="form-label">Contraseña</label>
                             <input type="password" class="form-control" id="registerPassword" required>
@@ -626,6 +670,10 @@
                 const firstName = $("#registerFirstName").val().trim();
                 const lastName = $("#registerLastName").val().trim();
                 const email = $("#registerEmail").val().trim();
+                const university = $("#registerUniversity").val();
+                const gender = $("#registerGender").val();
+                const age = $("#registerAge").val();
+                const academicLevel = $("#registerAcademicLevel").val();
                 const password = $("#registerPassword").val();
                 const confirmPassword = $("#registerConfirmPassword").val();
                 
@@ -638,11 +686,15 @@
                     url: "/register",
                     type: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({ 
-                        first_name: firstName, 
-                        last_name: lastName, 
-                        email: email, 
-                        password: password 
+                    data: JSON.stringify({
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        university: university,
+                        gender: gender,
+                        age: age,
+                        academic_level: academicLevel,
+                        password: password
                     }),
                     success: function(response) {
                         // Cerrar el modal

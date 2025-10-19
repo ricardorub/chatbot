@@ -1,1 +1,0 @@
-from .auth_controller import login, logout, register

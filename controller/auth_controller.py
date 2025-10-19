@@ -43,6 +43,10 @@ def register():
     password = data.get('password')
     first_name = data.get('first_name', '').strip()
     last_name = data.get('last_name', '').strip()
+    university = data.get('university')
+    gender = data.get('gender')
+    academic_level = data.get('academic_level')
+    age = data.get('age')
 
     if not email or not password:
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
@@ -60,7 +64,11 @@ def register():
         email=email,
         password=password,
         first_name=first_name if first_name else None,
-        last_name=last_name if last_name else None
+        last_name=last_name if last_name else None,
+        university=university,
+        gender=gender,
+        academic_level=academic_level,
+        age=age
     )
 
     try:

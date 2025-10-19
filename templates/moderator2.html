@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Encuesta de Satisfaccion al Cliente</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Resultados de Encuesta de Satisfaccion al Cliente</h1>
+        <table class="table table-striped mt-4">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Email de Usuario</th>
+                    <th>Rating de Claridad</th>
+                    <th>Rating de Accesibilidad</th>
+                    <th>Rating de Confianza</th>
+                    <th>fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedback_list %}
+                <tr>
+                    <td>{{ feedback.user.email }}</td>
+                    <td>{{ feedback.clarity_rating }}</td>
+                    <td>{{ feedback.accessibility_rating }}</td>
+                    <td>{{ feedback.reliability_rating }}</td>
+                    <td>{{ feedback.submitted_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No feedback submitted yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="{{ url_for('auth.logout') }}" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger mt-3">Cerrar Sesion</button>
+        </form>
+    </div>
+</body>
+</html>
